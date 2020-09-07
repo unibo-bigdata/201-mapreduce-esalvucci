@@ -22,15 +22,35 @@ public class Ex4AverageWordLength {
 		private IntWritable wordLength = new IntWritable();
 
 		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			//TODO mapper code
+
+			StringTokenizer tokenizer = new StringTokenizer(value.toString());
+			while (tokenizer.hasMoreTokens()) {
+				String wordString = tokenizer.nextToken();
+				word.set(wordString);
+				firstLetter.set(wordString.substring(0, 1));
+				wordLength.set(wordString.length());
+				context.write(firstLetter, wordLength);
+			}
+
 		}
 	}
 
 	public static class Ex4Reducer extends Reducer<Text, IntWritable, Text, DoubleWritable> {
 
+		DoubleWritable result = new DoubleWritable();
+
 		public void reduce(Text key, Iterable<IntWritable> values, Context context)
 				throws IOException, InterruptedException {
 			//TODO reducer code
+
+			double sum = 0;
+			double counter = 0;
+			for (IntWritable v : values) {
+				sum = sum + v.get();
+				counter = counter + 1;
+			}
+			result.set(sum / counter);
+			context.write(key, result);
 		}
 	}
 
